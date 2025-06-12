@@ -1,0 +1,67 @@
+// Obtener elementos del DOM
+const formulario = document.getElementById("formularioBoletos");
+const destino = document.getElementById("destino");
+const opcionVuelo = document.getElementById("opcionVuelo");
+const fechaIda = document.getElementById("fechaIda");
+const fechaVuelta = document.getElementById("fechaVuelta");
+const pasajeros = document.getElementById("pasajeros");
+const resultado = document.getElementById("resultado");
+const errorFecha = document.getElementById("errorFecha");
+
+// Precios por destino (ida y vuelta)
+const precios = {
+  COR: 120000,
+  MDZ: 210800,
+  BUE: 135000,
+};
+
+// Función para validar fechas
+function validarFechas(ida, vuelta, opcion) {
+  if (opcion === "ida_vuelta") {
+    if (!vuelta || vuelta <= ida) {
+      errorFecha.textContent = "La fecha de vuelta debe ser mayor que la de ida.";
+      return false;
+    }
+  }
+  errorFecha.textContent = "";
+  return true;
+}
+
+// Función para calcular precio total
+function calcularPrecio(dest, opcion, cantPasajeros) {
+  let precioBase = precios[dest] || 0;
+
+  // Si es solo ida, se cobra la mitad
+  if (opcion === "ida") {
+    precioBase /= 2;
+  }
+
+  // Se aplica IVA
+  const precioConIVA = precioBase * 1.21;
+
+  // Precio total por cantidad de pasajeros
+  return precioConIVA * cantPasajeros;
+}
+
+// Manejador del evento submit
+formulario.addEventListener("submit", (e) => {
+  e.preventDefault();
+  resultado.textContent = "";
+
+  const dest = destino.value;
+  const opcion = opcionVuelo.value;
+  const ida = new Date(fechaIda.value);
+  const vuelta = new Date(fechaVuelta.value);
+  const cantPasajeros = parseInt(pasajeros.value);
+
+  // Validar fechas
+  if (!validarFechas(ida, vuelta, opcion)) return;
+
+  // Calcular total
+  const total = calcularPrecio(dest, opcion, cantPasajeros);
+
+  // Mostrar en el DOM
+  resultado.textContent = `El precio total es: $${total.toLocaleString("es-AR", {
+    minimumFractionDigits: 2,
+  })}`;
+});
